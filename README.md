@@ -1,7 +1,7 @@
 # Matrix Windows Commander
 
 <div style="display: flex; gap: 10px;">
-  <a href="#opis-po-polsku"><img src="[[https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_Poland.svg/45px-Flag_of_Poland.svg.png](https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Flag_of_Poland.svg/32px-Flag_of_Poland.svg.png?20180824112544=&download=](https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Flag_of_Poland.svg/32px-Flag_of_Poland.svg.png))" alt="Polska" title="Polski"></a>
+  <a href="#opis-po-polsku"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_Poland.svg/45px-Flag_of_Poland.svg.png" alt="Polska" title="Polski"></a>
   <a href="#english-description"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a4/Flag_of_the_United_States.svg/45px-Flag_of_the_United_States.svg.png" alt="English" title="English"></a>
 </div>
 
