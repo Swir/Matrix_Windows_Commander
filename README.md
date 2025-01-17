@@ -1,7 +1,7 @@
 # Matrix Windows Commander
 
-[🇵🇱 PL](#opis-po-polsku)  
-[🇺🇸 En](#english-description)
+[🇵🇱 PL](#opis-po-polsku)  [🇺🇸 En](#english-description)
+
 
 
 ---
