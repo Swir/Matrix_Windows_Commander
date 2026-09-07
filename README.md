@@ -1,41 +1,69 @@
-# Matrix Windows Commander
+<div align="center">
 
-[🇵🇱 PL](#opis-po-polsku)  [🇺🇸 En](#english-description)
+# 🟢 Matrix Windows Commander
 
+**Windows command center with a Matrix-inspired PyQt5 interface**  
+**Centrum poleceń Windows w interfejsie inspirowanym Matrixem**
 
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
+![PyQt5](https://img.shields.io/badge/GUI-PyQt5-41CD52)
+![Windows](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows)
 
----
-
-## Opis po polsku
-
-**Matrix Windows Commander** to narzędzie stworzone w Pythonie z wykorzystaniem PyQt5, które umożliwia przeglądanie i wykonywanie wielu poleceń systemowych Windows w stylu „Matrixa” – zielony tekst na czarnym tle. Program organizuje polecenia w kategorie, wyświetla ich opisy oraz informacje o wymaganiach (np. uprawnienia administratora), a także udostępnia przewijalne okna wyników dla łatwej analizy. 
-
-### Co program robi:
-- **Kategoryzacja poleceń:** Grupy poleceń systemowych według funkcji (System Repair, Network, itd.).
-- **Szczegółowe opisy:** Dla każdej komendy dostępny jest opis, przykładowe użycie i informacja o wymaganiach uprawnień.
-- **Interakcyjny interfejs:** Estetyczny interfejs w stylu „Matrixa” z zielonym tekstem na czarnym tle.
-- **Przewijalne wyniki:** Wyniki komend są wyświetlane w oddzielnych oknach z możliwością przewijania.
-- **Obsługa błędów:** Program analizuje komunikaty błędów i sugeruje rozwiązania, np. uruchomienie jako administrator.
-
-### Wymagania:
-- System operacyjny: Windows 10/11
-- Python 3.x
-- Biblioteka PyQt5 (instalacja: `pip install PyQt5`)
+</div>
 
 ---
 
-## English Description
+## 🇵🇱 Polski
 
-**Matrix Windows Commander** is a Python tool built with PyQt5 that allows browsing and executing numerous Windows system commands in a "Matrix" style – green text on a black background. The program organizes commands into categories, displays descriptions and requirements (e.g., administrator privileges), and provides scrollable result windows for easy analysis.
+Matrix Windows Commander organizuje przydatne polecenia Windows w jednym graficznym panelu. Zamiast pamiętać dziesiątki komend CMD/PowerShell, można przeglądać je według kategorii i uruchamiać z aplikacji.
 
-### What the program does:
-- **Command Categorization:** Groups system commands by functionality (System Repair, Network, etc.).
-- **Detailed Descriptions:** Each command comes with a description, usage example, and information on required privileges.
-- **Interactive Interface:** A visually appealing "Matrix" style interface with green text on a black background.
-- **Scrollable Results:** Command outputs are displayed in separate scrollable windows for easy viewing.
-- **Error Handling:** The program analyzes error messages and suggests solutions, such as running as administrator.
+### 🧰 Kategorie
+- naprawa i diagnostyka systemu — SFC, DISM, CHKDSK
+- sieć i Internet — `ipconfig`, `netstat`, `ping`, `tracert`, `nslookup`, `netsh`
+- procesy i usługi — `tasklist`, `taskkill`, `sc`
+- pliki i dyski — `diskpart`, `robocopy`, `takeown`, `icacls`, BitLocker
+- rejestr i konfiguracja — `reg`, `bcdedit`, `wevtutil`
+- użytkownicy i grupy — polecenia `net`
+- WSL i narzędzia zaawansowane
 
-### Requirements:
-- Operating System: Windows 10/11
-- Python 3.x
-- PyQt5 library (install: `pip install PyQt5`)
+### 🚀 Uruchomienie
+```bash
+git clone https://github.com/Swir/Matrix_Windows_Commander.git
+cd Matrix_Windows_Commander
+pip install PyQt5
+python run.py
+```
+
+### ⚠️ Ważne
+Część dostępnych poleceń może zmieniać konfigurację systemu, dysków, sieci, rejestru lub kont użytkowników. Przed wykonaniem komendy sprawdź jej działanie; niektóre wymagają uprawnień administratora.
+
+---
+
+## 🇬🇧 English
+
+Matrix Windows Commander collects useful Windows commands in a single graphical control panel. Commands are organized into categories so you can browse and execute common diagnostic, maintenance and administration tasks without memorizing every CMD/PowerShell command.
+
+### 🧰 Categories
+- system repair & diagnostics — SFC, DISM, CHKDSK
+- network & Internet — `ipconfig`, `netstat`, `ping`, `tracert`, `nslookup`, `netsh`
+- processes & services — `tasklist`, `taskkill`, `sc`
+- file & disk management — `diskpart`, `robocopy`, `takeown`, `icacls`, BitLocker
+- registry & configuration — `reg`, `bcdedit`, `wevtutil`
+- users & groups — Windows `net` commands
+- WSL & advanced tools
+
+### 🚀 Run
+```bash
+git clone https://github.com/Swir/Matrix_Windows_Commander.git
+cd Matrix_Windows_Commander
+pip install PyQt5
+python run.py
+```
+
+### ⚠️ Important
+Some included commands can modify system, disk, network, registry or user-account configuration. Review a command before running it; administrator privileges may be required.
+
+---
+
+## 👤 Author / Autor
+Developed by **Swir**.
