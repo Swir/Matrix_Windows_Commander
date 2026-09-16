@@ -1,0 +1,75 @@
+name: Windows Release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows-release:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[release]')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install, test and build icon
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[gui,test,build]"
+          pytest -q
+          python tools/build_icon.py
+      - name: Resolve version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") { $version = "${{ github.ref_name }}" }
+          else { $raw = python -c "import matrix_windows_commander; print(matrix_windows_commander.__version__)"; $version = "v$raw" }
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Build Windows EXE
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean --onefile --windowed `
+            --name "MatrixWindowsCommander" `
+            --paths src `
+            --icon "assets/matrix-windows-commander.ico" `
+            --collect-all PySide6 `
+            --add-data "assets/matrix-windows-commander.svg;assets" `
+            main.py
+      - name: Smoke test artifact
+        shell: pwsh
+        run: |
+          if (!(Test-Path "dist/MatrixWindowsCommander.exe")) { throw "EXE missing" }
+          if ((Get-Item "dist/MatrixWindowsCommander.exe").Length -lt 1000000) { throw "EXE unexpectedly small" }
+          $p=Start-Process -FilePath ".\dist\MatrixWindowsCommander.exe" -ArgumentList "--version" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "Version smoke test failed" }
+      - name: Package and checksum
+        shell: pwsh
+        run: |
+          $zip="Matrix-Windows-Commander-$env:VERSION-Windows-x64.zip"
+          New-Item -ItemType Directory -Force release | Out-Null
+          Copy-Item "dist/MatrixWindowsCommander.exe" "release/MatrixWindowsCommander.exe"
+          Copy-Item README.md, CHANGELOG.md "release/"
+          Compress-Archive -Path "release/*" -DestinationPath $zip -Force
+          $exeHash=(Get-FileHash "dist/MatrixWindowsCommander.exe" -Algorithm SHA256).Hash.ToLower(); "$exeHash  MatrixWindowsCommander.exe" | Set-Content "dist/MatrixWindowsCommander.exe.sha256"
+          $zipHash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLower(); "$zipHash  $zip" | Set-Content "$zip.sha256"
+          "ZIP_NAME=$zip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
+          name: Matrix Windows Commander ${{ env.VERSION }}
+          generate_release_notes: true
+          make_latest: true
+          files: |
+            dist/MatrixWindowsCommander.exe
+            dist/MatrixWindowsCommander.exe.sha256
+            ${{ env.ZIP_NAME }}
+            ${{ env.ZIP_NAME }}.sha256

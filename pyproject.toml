@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swir-matrix-windows-commander"
+version = "2.0.0"
+description = "Safe Windows diagnostics and repair command center"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "Swir"}]
+dependencies = ["platformdirs>=4.3,<5"]
+
+[project.optional-dependencies]
+gui = ["PySide6>=6.8,<7"]
+test = ["pytest>=8,<9"]
+build = ["Pillow>=11,<13", "pyinstaller>=6.10,<7"]
+
+[project.scripts]
+matrix-windows-commander = "matrix_windows_commander.app:run"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
