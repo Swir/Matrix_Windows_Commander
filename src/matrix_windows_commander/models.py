@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import StrEnum
+from enum import Enum
 
 
-class Risk(StrEnum):
+class Risk(str, Enum):
     READ_ONLY = "read_only"
     REPAIR = "repair"
     CHANGE = "change"
