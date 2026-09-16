@@ -1,73 +1,79 @@
 <div align="center">
 
-# 🟢 Matrix Windows Commander
+# ⚡ Matrix Windows Commander 2
 
-### Matrix-Style Control Center for Windows CMD & PowerShell Commands
+### Safe Windows diagnostics & repair command center
 
-**Python • PyQt5 • Windows • Diagnostics • Networking • Administration**
-
-![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
-![PyQt5](https://img.shields.io/badge/GUI-PyQt5-41CD52?logo=qt&logoColor=white)
-![Windows](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white)
-![UI](https://img.shields.io/badge/Style-Matrix-00ff66)
+**Windows 10/11 · PySide6 / Qt 6 · PL / EN · Blue Matrix UI**
 
 </div>
 
----
+Matrix Windows Commander 2 modernizes the original single-file command launcher into a structured Windows diagnostics application. It focuses on useful, bounded system inspection and repair commands while adding safeguards around commands that can change Windows.
 
-## 🚀 About
+## Highlights
 
-**Matrix Windows Commander** collects useful Windows CMD and PowerShell commands in one graphical control center. Instead of remembering dozens of syntax variants, browse commands by category and launch common diagnostics, maintenance and administration tasks from a Matrix-inspired PyQt5 interface.
+- modern **blue Matrix** desktop interface
+- fast search and category filtering
+- Polish/English interface with automatic system-language selection
+- detailed command descriptions, exact command preview and one-click copy
+- non-blocking execution with live stdout/stderr
+- stop button and per-command safety timeout
+- clear risk levels: read-only, repair, system change
+- explicit confirmation before repair/change actions
+- administrator detection with controlled UAC relaunch
+- local history metadata stored in the user profile
+- dedicated application icon
+- modular package instead of a 31 KB monolithic script
 
-It is designed for users searching for a **Windows command launcher**, **PowerShell GUI**, **CMD command manager**, **Windows diagnostic tool**, **PyQt5 system utility** or a categorized Windows administration command center.
+## Command groups
 
----
+The built-in catalog covers Windows system information, SFC/DISM diagnostics and repair, network diagnostics, process/service inspection, storage status, BitLocker status, firewall information, power diagnostics and WSL status.
 
-## 🧰 Command Categories
+Version 2 intentionally does **not** expose destructive legacy actions such as drive formatting, `diskpart`, registry deletion, forced shutdown/reboot, recursive directory deletion or `wsl --unregister` as one-click commands.
 
-| Category | Examples |
-|---|---|
-| 🛠️ System repair | SFC, DISM, CHKDSK |
-| 🌐 Network | `ipconfig`, `netstat`, `ping`, `tracert`, `nslookup`, `netsh` |
-| ⚙️ Processes & services | `tasklist`, `taskkill`, `sc` |
-| 💾 Files & disks | `diskpart`, `robocopy`, `takeown`, `icacls`, BitLocker |
-| 🧩 Registry / boot | `reg`, `bcdedit`, `wevtutil` |
-| 👥 Users & groups | Windows `net` commands |
-| 🐧 Advanced tools | WSL and additional Windows utilities |
+## Install from source
 
----
-
-## 📦 Installation
-
-```bash
+```powershell
 git clone https://github.com/Swir/Matrix_Windows_Commander.git
 cd Matrix_Windows_Commander
-pip install PyQt5
-python run.py
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[gui]"
+python main.py
 ```
 
----
+## Administrator mode
 
-## ⚠️ Important
+Most information commands run in standard mode. Commands that genuinely require elevated rights are marked. Use the **Restart as administrator** button when needed. Repair/change commands also require explicit confirmation before execution.
 
-Some commands can modify disks, networking, services, registry settings, boot configuration or user accounts. Review a command before running it and use administrator privileges only when required.
+## Privacy
 
----
+The application does not upload command output. Execution history stores only command ID/title, exit code, timestamp and duration in the current user's application-data directory. Command output itself is not persisted.
 
-## 🔍 Discoverability
+## Development
 
-`windows command launcher` • `powershell gui` • `cmd command manager` • `windows diagnostic tool python` • `pyqt5 windows utility` • `windows admin commands gui` • `matrix windows tool`
+```powershell
+pip install -e ".[gui,test,build]"
+pytest -q
+```
 
----
+Core tests run on Python 3.10–3.14. The Windows release pipeline builds and smoke-tests `MatrixWindowsCommander.exe`, then publishes the EXE, portable ZIP and SHA256 checksums.
 
-## 👨‍💻 Author
+## Project layout
 
-Developed by **Swir** — [@Swir](https://github.com/Swir)
+```text
+src/matrix_windows_commander/
+├── app.py
+├── catalog.py
+├── history.py
+├── i18n.py
+├── models.py
+└── platform_utils.py
+assets/
+tests/
+tools/
+```
 
-<div align="center">
+## Author
 
-### 🟢 Windows commands organized like a control center
-
-⭐ **Star the repository if it helps your Windows workflow!**
-
-</div>
+Developed by **Swir** — https://github.com/Swir
