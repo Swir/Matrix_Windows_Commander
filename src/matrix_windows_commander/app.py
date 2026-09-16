@@ -3,10 +3,9 @@ from __future__ import annotations
 import locale
 import time
 import webbrowser
-from pathlib import Path
 
 from PySide6.QtCore import QProcess, QTimer, Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QTextCursor
 from PySide6.QtWidgets import (
     QApplication, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget,
     QListWidgetItem, QMainWindow, QMessageBox, QPlainTextEdit, QPushButton,
@@ -38,18 +37,32 @@ QStatusBar { background: #07101f; color: #8fb6cf; border-top: 1px solid #163a61;
 
 
 class MainWindow(QMainWindow):
-    def __init__(self) -> None:
+    def __init__(self, language: str | None = None) -> None:
         super().__init__()
-        self.language = detect_language(); self.current: CommandSpec | None = None; self.process: QProcess | None = None; self.started_monotonic = 0.0; self.started_at = ""; self.history = HistoryStore()
+        self.language = language or detect_language()
+        self.current: CommandSpec | None = None
+        self.process: QProcess | None = None
+        self.started_monotonic = 0.0
+        self.started_at = ""
+        self.history = HistoryStore()
+        self._replacement: MainWindow | None = None
         self.setWindowTitle(f"{tr(self.language,'app')} 2.0")
-        self.resize(1260, 760); self.setMinimumSize(960, 620); self.setStyleSheet(STYLE)
+        self.resize(1260, 760)
+        self.setMinimumSize(960, 620)
+        self.setStyleSheet(STYLE)
         icon = resource_path("assets/matrix-windows-commander.svg")
-        if icon.exists(): self.setWindowIcon(QIcon(str(icon)))
-        self._build(); self._populate(); self._update_admin_badge()
-        if not is_windows(): QMessageBox.information(self, tr(self.language,"app"), tr(self.language,"not_windows"))
+        if icon.exists():
+            self.setWindowIcon(QIcon(str(icon)))
+        self._build()
+        self._populate()
+        self._update_admin_badge()
+        if not is_windows():
+            QMessageBox.information(self, tr(self.language,"app"), tr(self.language,"not_windows"))
 
     def _panel(self) -> QFrame:
-        frame = QFrame(); frame.setObjectName("Panel"); return frame
+        frame = QFrame()
+        frame.setObjectName("Panel")
+        return frame
 
     def _build(self) -> None:
         root=QWidget(); outer=QVBoxLayout(root); outer.setContentsMargins(14,14,14,10); outer.setSpacing(10)
@@ -58,7 +71,7 @@ class MainWindow(QMainWindow):
         self.lang=QComboBox(); self.lang.addItems(["PL","EN"]); self.lang.setCurrentText("PL" if self.language=="pl" else "EN"); self.lang.currentTextChanged.connect(self._change_language); header.addWidget(self.lang); outer.addLayout(header)
         splitter=QSplitter(Qt.Horizontal); splitter.setChildrenCollapsible(False)
         left=self._panel(); left_l=QVBoxLayout(left); self.search=QLineEdit(); self.search.setPlaceholderText(tr(self.language,"search")); self.search.textChanged.connect(self._populate); left_l.addWidget(self.search)
-        self.category=QComboBox(); self.category.addItem(tr(self.language,"all"),"All");
+        self.category=QComboBox(); self.category.addItem(tr(self.language,"all"),"All")
         for item in CATEGORIES: self.category.addItem(item,item)
         self.category.currentIndexChanged.connect(self._populate); left_l.addWidget(self.category); self.commands=QListWidget(); self.commands.currentItemChanged.connect(self._select); left_l.addWidget(self.commands,1); splitter.addWidget(left)
         middle=self._panel(); mid=QVBoxLayout(middle); self.detail_title=QLabel(tr(self.language,"details")); self.detail_title.setStyleSheet("font-size:15pt;font-weight:700;color:#7bdcff"); mid.addWidget(self.detail_title); self.description=QPlainTextEdit(); self.description.setReadOnly(True); mid.addWidget(self.description,1)
@@ -73,15 +86,19 @@ class MainWindow(QMainWindow):
         values=search_catalog(query,category)
         for spec in values:
             item=QListWidgetItem(spec.title); item.setData(Qt.UserRole,spec.id); item.setToolTip(spec.command_line); self.commands.addItem(item)
-        if not values: self.commands.addItem(tr(self.language,"empty")); self.commands.item(0).setFlags(Qt.NoItemFlags)
+        if not values:
+            self.commands.addItem(tr(self.language,"empty")); self.commands.item(0).setFlags(Qt.NoItemFlags)
         elif selected_id:
             for index in range(self.commands.count()):
-                if self.commands.item(index).data(Qt.UserRole)==selected_id: self.commands.setCurrentRow(index); break
-        if self.commands.currentRow()<0 and values: self.commands.setCurrentRow(0)
+                if self.commands.item(index).data(Qt.UserRole)==selected_id:
+                    self.commands.setCurrentRow(index); break
+        if self.commands.currentRow()<0 and values:
+            self.commands.setCurrentRow(0)
 
     def _select(self,current: QListWidgetItem | None,_previous=None) -> None:
         self.current=get_command(current.data(Qt.UserRole)) if current and current.data(Qt.UserRole) else None
-        if not self.current: self.description.clear(); self.command_preview.clear(); self._sync_buttons(); return
+        if not self.current:
+            self.description.clear(); self.command_preview.clear(); self._sync_buttons(); return
         spec=self.current; desc=spec.description_pl if self.language=="pl" else spec.description_en; risk_label=tr(self.language,spec.risk.value); admin=tr(self.language,"yes") if spec.admin_required else tr(self.language,"no")
         self.description.setPlainText(f"{desc}\n\n{tr(self.language,'category')}: {spec.category}\n{tr(self.language,'risk')}: {risk_label}\n{tr(self.language,'requires_admin')}: {admin}\nTimeout: {spec.timeout_seconds}s")
         self.command_preview.setText(spec.command_line); self._sync_buttons()
@@ -92,39 +109,64 @@ class MainWindow(QMainWindow):
     def _run(self) -> None:
         spec=self.current
         if not spec or not is_windows(): return
-        if spec.admin_required and not is_admin(): QMessageBox.warning(self,tr(self.language,"app"),tr(self.language,"need_admin")); return
+        if spec.admin_required and not is_admin():
+            QMessageBox.warning(self,tr(self.language,"app"),tr(self.language,"need_admin")); return
         if spec.risk in (Risk.REPAIR,Risk.CHANGE):
             text=tr(self.language,"confirm_repair" if spec.risk==Risk.REPAIR else "confirm_change")
-            if QMessageBox.question(self,tr(self.language,"confirm_title"),text,QMessageBox.Yes|QMessageBox.No,QMessageBox.No)!=QMessageBox.Yes:return
+            if QMessageBox.question(self,tr(self.language,"confirm_title"),text,QMessageBox.Yes|QMessageBox.No,QMessageBox.No)!=QMessageBox.Yes:
+                return
         self.output.clear(); self.output.appendPlainText(f"> {spec.command_line}\n"); self.process=QProcess(self); self.process.setProgram(spec.executable); self.process.setArguments(list(spec.args)); self.process.setProcessChannelMode(QProcess.SeparateChannels); self.process.readyReadStandardOutput.connect(self._stdout); self.process.readyReadStandardError.connect(self._stderr); self.process.errorOccurred.connect(self._process_error); self.process.finished.connect(self._finished); self.started_monotonic=time.monotonic(); self.started_at=utc_now(); self.process.start(); self.timeout.start(spec.timeout_seconds*1000); self.statusBar().showMessage(f"{tr(self.language,'running')}: {spec.title}"); self._sync_buttons()
 
     def _decode(self,data: bytes) -> str:
         for enc in (locale.getpreferredencoding(False),"utf-8","cp1250","cp850","cp437"):
-            try:return data.decode(enc)
-            except (UnicodeDecodeError,LookupError):pass
+            try: return data.decode(enc)
+            except (UnicodeDecodeError,LookupError): pass
         return data.decode("utf-8",errors="replace")
+
     def _stdout(self) -> None:
-        if self.process:self.output.moveCursor(self.output.textCursor().End); self.output.insertPlainText(self._decode(bytes(self.process.readAllStandardOutput())))
+        if self.process:
+            self.output.moveCursor(QTextCursor.End); self.output.insertPlainText(self._decode(bytes(self.process.readAllStandardOutput())))
+
     def _stderr(self) -> None:
-        if self.process:self.output.moveCursor(self.output.textCursor().End); self.output.insertPlainText(self._decode(bytes(self.process.readAllStandardError())))
+        if self.process:
+            self.output.moveCursor(QTextCursor.End); self.output.insertPlainText(self._decode(bytes(self.process.readAllStandardError())))
+
     def _process_error(self,_error) -> None:
-        if self.process and self.process.state()==QProcess.NotRunning:self.output.appendPlainText(f"\n[{tr(self.language,'start_failed')}] {self.process.errorString()}")
+        if self.process and self.process.state()==QProcess.NotRunning:
+            self.output.appendPlainText(f"\n[{tr(self.language,'start_failed')}] {self.process.errorString()}")
+
     def _finished(self,exit_code:int,_status) -> None:
         self.timeout.stop(); spec=self.current; duration=int((time.monotonic()-self.started_monotonic)*1000) if self.started_monotonic else 0; self.output.appendPlainText(f"\n[{tr(self.language,'finished')}: exit {exit_code}, {duration/1000:.1f}s]")
-        if spec:self.history.append(HistoryEntry(spec.id,spec.title,int(exit_code),self.started_at,duration)); self.statusBar().showMessage(f"{tr(self.language,'finished')}: {exit_code}"); self.process.deleteLater(); self.process=None; self._sync_buttons()
+        if spec:
+            self.history.append(HistoryEntry(spec.id,spec.title,int(exit_code),self.started_at,duration))
+        self.statusBar().showMessage(f"{tr(self.language,'finished')}: {exit_code}"); self.process.deleteLater(); self.process=None; self._sync_buttons()
+
     def _timed_out(self) -> None:
-        if self.process and self.process.state()!=QProcess.NotRunning:self.output.appendPlainText(f"\n[{tr(self.language,'timeout')}]"); self.process.kill()
+        if self.process and self.process.state()!=QProcess.NotRunning:
+            self.output.appendPlainText(f"\n[{tr(self.language,'timeout')}]"); self.process.kill()
+
     def _stop(self) -> None:
-        if self.process and self.process.state()!=QProcess.NotRunning:self.process.kill()
+        if self.process and self.process.state()!=QProcess.NotRunning:
+            self.process.kill()
+
     def _copy(self) -> None:
-        if self.current: QApplication.clipboard().setText(self.current.command_line); self.statusBar().showMessage(tr(self.language,"copied"),3000)
+        if self.current:
+            QApplication.clipboard().setText(self.current.command_line); self.statusBar().showMessage(tr(self.language,"copied"),3000)
+
     def _elevate(self) -> None:
-        if relaunch_as_admin(): QApplication.quit()
-    def _update_admin_badge(self) -> None:self.admin_badge.setText(tr(self.language,"admin_mode" if is_admin() else "standard_mode"))
+        if relaunch_as_admin():
+            QApplication.quit()
+
+    def _update_admin_badge(self) -> None:
+        self.admin_badge.setText(tr(self.language,"admin_mode" if is_admin() else "standard_mode"))
+
     def _change_language(self,value:str) -> None:
         lang="pl" if value=="PL" else "en"
-        if lang==self.language:return
-        self.language=lang; self.close(); replacement=MainWindow(); replacement.language=lang; replacement.show()
+        if lang==self.language:
+            return
+        self._replacement=MainWindow(language=lang)
+        self._replacement.show()
+        self.close()
 
 
 def run() -> None:
