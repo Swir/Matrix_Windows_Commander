@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.1.0 - 2026-09-17
+
+### Regression recovery
+- Restored safe legacy diagnostics for hostname, DHCP, PathPing, NetBIOS, registry reading, Event Log channels, scheduled tasks, account/share inspection, battery/energy reports and WSL installation.
+- Restored useful repair variants for CHKDSK, TCP/IP, DHCP and Print Spooler with risk labels and explicit confirmation where they can change system state.
+- Kept destructive classic actions removed: formatting, `diskpart`, registry deletion, shutdown/reboot, recursive deletion and `wsl --unregister`.
+- Saved Wi-Fi profile inspection lists names only and never requests stored keys/passwords.
+
+### Improved
+- Window title now follows the package version.
+- Windows runtime prefers the generated ICO while retaining SVG fallback during source runs.
+- Icon tooling now generates both ICO and PNG artwork from one design.
+- README now displays the custom icon and documents the real restored command set.
+- Added real Windows GUI startup CI and packaged EXE GUI smoke testing before release publication.
+
 ## 2.0.0 - 2026-09-17
 
 ### Changed
