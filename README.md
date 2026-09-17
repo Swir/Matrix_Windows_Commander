@@ -2,7 +2,7 @@
 
 <img src="assets/matrix-windows-commander.svg" alt="Matrix Windows Commander icon" width="128" height="128">
 
-# ⚡ Matrix Windows Commander 2.1
+# ⚡ Matrix Windows Commander 2.1.1
 
 ### Safe Windows diagnostics & repair command center
 
@@ -10,7 +10,7 @@
 
 </div>
 
-Matrix Windows Commander 2.1 keeps the safer modular architecture of v2 while restoring useful diagnostic and maintenance commands that existed in the original 31 KB PyQt5 build. Destructive one-click actions remain intentionally excluded.
+Matrix Windows Commander 2.1.1 keeps the safer modular architecture of v2 while restoring useful diagnostic and maintenance functions that existed in the original 31 KB PyQt5 build. The regression audit now covers the classic catalog much more closely, while destructive one-click actions remain intentionally excluded.
 
 ## Highlights
 
@@ -30,20 +30,25 @@ Matrix Windows Commander 2.1 keeps the safer modular architecture of v2 while re
 
 ## Restored diagnostic coverage
 
-The regression audit compared v2 with the classic command catalog and restored safe or explicitly-confirmed equivalents, including:
+The regression audit compared the modern application with the classic command catalog and restored safe or explicitly-confirmed equivalents, including:
 
-- hostname and Windows version information
+- hostname, Windows version and installed-driver information
 - SFC, DISM and read-only/repair CHKDSK flows
+- Disk Cleanup and the built-in Windows performance diagnostic report
 - DHCP release/renew, DNS cache display/flush and TCP/IP/Winsock repair
 - PathPing, route table, ARP cache and NetBIOS diagnostics
 - saved **Wi-Fi profile names only** — stored keys/passwords are never requested
 - Event Log channel listing, scheduled-task listing and read-only BCD enumeration
-- local users, local groups, account policy, shares, SMB sessions and network view
-- Print Spooler status plus explicitly-confirmed start/stop actions
+- Regsvr32 and Logman help without changing registration or logging configuration
+- local/domain users and groups, account policy, shares, SMB sessions, open shared files and network view
+- running processes, started services and Print Spooler status/start/stop
+- an explicitly-confirmed **Close Notepad** action matching the classic build; it warns that unsaved Notepad text can be lost
 - battery and short energy reports
 - WSL status/list plus explicitly-confirmed default WSL installation
 
-Version 2.1 still intentionally does **not** expose destructive legacy actions such as drive formatting, `diskpart`, registry deletion, forced shutdown/reboot, recursive directory deletion or `wsl --unregister` as one-click commands.
+Version 2.1.1 still intentionally does **not** expose destructive legacy actions such as drive formatting, `diskpart`, registry deletion, forced shutdown/reboot, recursive directory deletion or `wsl --unregister` as one-click commands.
+
+Some old entries such as `xcopy`, `robocopy`, `takeown`, `icacls` and `label` were only incomplete placeholders without a target/path workflow. They are not exposed as blind one-click commands because doing so would either fail or operate on the wrong location. A future file/path picker can reintroduce them safely as proper workflows instead of raw placeholders.
 
 ## Safety model
 
