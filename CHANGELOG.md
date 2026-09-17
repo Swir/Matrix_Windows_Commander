@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.1 - 2026-09-17
+
+### Regression audit completion
+- Restored additional useful classic functions that were still missing after 2.1.0: Disk Cleanup, Windows performance diagnostics, Regsvr32 help, Logman help, domain-group listing, open shared-file listing and started-service listing.
+- Restored the classic Notepad-close action as an explicit system-change command with confirmation because unsaved text may be lost.
+- Expanded regression tests so the remaining safe classic utilities cannot disappear silently in a later refactor.
+- Documented why incomplete path-dependent legacy placeholders such as `xcopy`, `robocopy`, `takeown`, `icacls` and `label` are not exposed as blind one-click commands.
+
 ## 2.1.0 - 2026-09-17
 
 ### Regression recovery

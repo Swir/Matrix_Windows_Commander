@@ -5,7 +5,7 @@ from matrix_windows_commander.models import Risk
 def test_command_ids_are_unique():
     ids = [item.id for item in COMMANDS]
     assert len(ids) == len(set(ids))
-    assert len(ids) >= 45
+    assert len(ids) >= 55
 
 
 def test_catalog_has_multiple_categories():
@@ -34,14 +34,22 @@ def test_restored_legacy_diagnostics_are_available_in_safe_forms():
         "wifi_profiles",
         "netbios_names",
         "reg_software",
+        "regsvr32_help",
         "event_logs",
         "scheduled_tasks",
         "bcd_enum",
+        "logman_help",
+        "cleanmgr",
+        "perfmon_report",
         "net_users",
         "net_localgroups",
+        "net_domain_groups",
         "net_accounts",
         "net_shares",
         "net_view",
+        "net_open_files",
+        "net_started_services",
+        "close_notepad",
         "spooler_status",
         "battery_report",
         "energy_report",
@@ -51,7 +59,15 @@ def test_restored_legacy_diagnostics_are_available_in_safe_forms():
 
 
 def test_network_and_service_changes_require_confirmation_risk():
-    for command_id in ("ip_release", "ip_renew", "spooler_start", "spooler_stop", "wsl_install"):
+    for command_id in (
+        "ip_release",
+        "ip_renew",
+        "spooler_start",
+        "spooler_stop",
+        "wsl_install",
+        "close_notepad",
+        "perfmon_report",
+    ):
         item = get_command(command_id)
         assert item is not None
         assert item.risk == Risk.CHANGE
@@ -63,6 +79,19 @@ def test_wifi_profile_command_never_requests_saved_keys():
     line = item.command_line.lower()
     assert "key=clear" not in line
     assert " key " not in f" {line} "
+
+
+def test_classic_help_and_inventory_commands_are_read_only():
+    for command_id in (
+        "regsvr32_help",
+        "logman_help",
+        "net_domain_groups",
+        "net_open_files",
+        "net_started_services",
+    ):
+        item = get_command(command_id)
+        assert item is not None
+        assert item.risk == Risk.READ_ONLY
 
 
 def test_dangerous_legacy_one_click_actions_removed():

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swir-matrix-windows-commander"
-version = "2.1.0"
+version = "2.1.1"
 description = "Safe Windows diagnostics and repair command center"
 readme = "README.md"
 requires-python = ">=3.10"
