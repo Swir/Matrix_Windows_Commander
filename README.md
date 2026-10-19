@@ -20,6 +20,12 @@
 
 </div>
 
+## 📸 Screenshot
+
+![Matrix_Windows_Commander application screenshot](docs/screenshots/application.png)
+
+Initial application window, rendered from the real Qt interface on Windows (offscreen capture).
+
 <img width="100%" src="https://raw.githubusercontent.com/Swir/Swir/main/assets/power-divider-v4.svg" alt="SWIR electric divider" />
 
 ## 📍 Project Status
